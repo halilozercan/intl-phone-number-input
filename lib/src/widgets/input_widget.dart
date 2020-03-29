@@ -10,6 +10,8 @@ import 'package:intl_phone_number_input/src/widgets/countries_search_list_widget
 import 'package:libphonenumber/libphonenumber.dart';
 import 'package:provider/provider.dart';
 
+import '../models/country_model.dart';
+
 enum PhoneInputSelectorType { DROPDOWN, BOTTOM_SHEET, DIALOG }
 
 class InternationalPhoneNumberInput extends StatelessWidget {
@@ -43,6 +45,7 @@ class InternationalPhoneNumberInput extends StatelessWidget {
   final InputBorder inputBorder;
   final InputDecoration inputDecoration;
   final InputDecoration searchBoxDecoration;
+  final CountryWidgetBuilder countryWidgetBuilder;
 
   final FocusNode focusNode;
 
@@ -62,6 +65,7 @@ class InternationalPhoneNumberInput extends StatelessWidget {
       this.inputBorder,
       this.inputDecoration,
       this.searchBoxDecoration,
+      this.countryWidgetBuilder,
       this.initialCountry2LetterCode = 'NG',
       this.hintText = 'Phone Number',
       this.isEnabled = true,
@@ -86,6 +90,7 @@ class InternationalPhoneNumberInput extends StatelessWidget {
     String errorMessage,
     @required InputDecoration inputDecoration,
     InputDecoration searchBoxDecoration,
+    CountryWidgetBuilder countryWidgetBuilder,
     String initialCountry2LetterCode = 'NG',
     bool isEnabled = true,
     bool formatInput = true,
@@ -106,6 +111,7 @@ class InternationalPhoneNumberInput extends StatelessWidget {
       textStyle: textStyle,
       inputDecoration: inputDecoration,
       searchBoxDecoration: searchBoxDecoration,
+      countryWidgetBuilder: countryWidgetBuilder,
       initialCountry2LetterCode: initialCountry2LetterCode,
       isEnabled: isEnabled,
       formatInput: formatInput,
@@ -129,6 +135,7 @@ class InternationalPhoneNumberInput extends StatelessWidget {
     TextStyle textStyle,
     @required InputBorder inputBorder,
     @required String hintText,
+    CountryWidgetBuilder countryWidgetBuilder,
     String initialCountry2LetterCode = 'NG',
     String errorMessage = 'Invalid phone number',
     bool isEnabled = true,
@@ -150,6 +157,7 @@ class InternationalPhoneNumberInput extends StatelessWidget {
       textStyle: textStyle,
       inputBorder: inputBorder,
       hintText: hintText,
+      countryWidgetBuilder: countryWidgetBuilder,
       initialCountry2LetterCode: initialCountry2LetterCode,
       errorMessage: errorMessage,
       formatInput: formatInput,
@@ -185,6 +193,7 @@ class InternationalPhoneNumberInput extends StatelessWidget {
           inputBorder: inputBorder,
           inputDecoration: inputDecoration,
           searchBoxDecoration: searchBoxDecoration,
+          countryWidgetBuilder: countryWidgetBuilder,
           countries: countries,
           ignoreBlank: ignoreBlank,
           locale: locale,
@@ -224,6 +233,15 @@ class _InputWidget extends StatefulWidget {
   final InputBorder inputBorder;
   final InputDecoration inputDecoration;
   final InputDecoration searchBoxDecoration;
+  final CountryWidgetBuilder countryWidgetBuilder;
+
+  CountryWidgetBuilder get _internalCountryWidgetBuilder {
+    if(countryWidgetBuilder != null) {
+      return countryWidgetBuilder;
+    } else {
+      return (Country country, BuildContext context) => _Item(country: country);
+    }
+  }
 
   final FocusNode focusNode;
 
@@ -243,6 +261,7 @@ class _InputWidget extends StatefulWidget {
       this.inputBorder,
       this.inputDecoration,
       this.searchBoxDecoration,
+      this.countryWidgetBuilder,
       this.initialCountry2LetterCode = 'NG',
       this.hintText = 'Phone Number',
       this.isEnabled = true,
@@ -382,7 +401,7 @@ class _InputWidgetState extends State<_InputWidget> {
                           }
                         }
                       : null,
-                  child: _Item(country: provider.country),
+                  child: widget._internalCountryWidgetBuilder(provider.country, context)
                 ),
           SizedBox(width: 12),
           Flexible(
@@ -490,6 +509,8 @@ class _InputWidgetState extends State<_InputWidget> {
     );
   }
 }
+
+typedef CountryWidgetBuilder(Country country, BuildContext context);
 
 class _Item extends StatelessWidget {
   final Country country;
